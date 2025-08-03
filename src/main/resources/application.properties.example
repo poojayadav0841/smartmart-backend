@@ -10,6 +10,7 @@ spring.jpa.hibernate.ddl-auto=update
 razorpay.KEY=YOUR_RAZORPAY_KEY
 razorpay.KEY_SECRET=YOUR_RAZORPAY_SECRET
 spring.main.allow-circular-references=true
+spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
 
 
 
