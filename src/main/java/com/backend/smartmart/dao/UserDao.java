@@ -7,5 +7,5 @@ import com.backend.smartmart.entity.User;
 
 @Repository
 public interface UserDao extends CrudRepository<User, String> {
-
+     boolean existsByUserName(String userName); 
 }

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,12 @@ import com.backend.smartmart.entity.User;
 
 @Service
 public class UserService {
+
+	@Value("${app.admin.username}")
+    private String adminUsername;
+
+    @Value("${app.admin.password}")
+    private String adminPassword;
 
 	@Autowired
 	private UserDao userDao;
@@ -39,16 +46,17 @@ public class UserService {
 		userRole.setRoleDescription("Default role for newly created user");
 		roleDao.save(userRole); //save user role in database
 		
-		User adminUser= new User();
-		adminUser.setUserFirstName("admin");
-		adminUser.setUserLastName("admin");
-		adminUser.setUserName("admin@123");
-		adminUser.setUserPassword(getEncodedPassword("admin@pass"));
-		Set<Role> adminRoles= new HashSet<>();
-		adminRoles.add(adminRole); 
-		adminUser.setRole(adminRoles); //set the role of admin in roles
-		userDao.save(adminUser);
-		
+		if (!userDao.existsByUserName(adminUsername)) {
+            User adminUser = new User();
+            adminUser.setUserFirstName("admin");
+            adminUser.setUserLastName("admin");
+            adminUser.setUserName(adminUsername);
+            adminUser.setUserPassword(getEncodedPassword(adminPassword));
+            Set<Role> adminRoles = new HashSet<>();
+            adminRoles.add(adminRole);
+            adminUser.setRole(adminRoles);
+            userDao.save(adminUser);
+        }
 		User user= new User();
 		user.setUserFirstName("tina");
 		user.setUserLastName("sharma");
