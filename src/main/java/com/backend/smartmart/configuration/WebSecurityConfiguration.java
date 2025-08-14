@@ -42,22 +42,46 @@ public class WebSecurityConfiguration {
     // SecurityFilterChain bean to configure HTTP security settings
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-            .cors(cors -> {}) // Configure CORS
-            .csrf(csrf -> csrf.disable()) // Disable CSRF
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/authenticate" , "/registerNewUser","/getAllProducts","/getProductDetailsById/{productId}").permitAll() // Allow access to /authenticate endpoint
-                .requestMatchers(org.springframework.http.HttpHeaders.ALLOW).permitAll() // Allow ALLOW header
-                .anyRequest().authenticated() // Authenticate all other requests
-            )
-            .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint)) // Custom entry point for JWT
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // Stateless session management
+     httpSecurity
+        .cors(cors -> {})
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            // Public backend APIs
+            .requestMatchers(
+                "/authenticate",
+                "/registerNewUser",
+                "/getAllProducts",
+                "/getProductDetailsById/{productId}"
+            ).permitAll()
 
-        // Add JwtRequestFilter before UsernamePasswordAuthenticationFilter
-        httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+            // Allow Angular frontend static files (adjust if your dist folder name is different)
+            .requestMatchers(
+                "/", 
+                "/index.html", 
+                "/favicon.ico",
+                "/assets/**",
+                "/*.js",
+                "/*.css",
+                "/*.png",
+                "/*.jpg",
+                "/*.jpeg",
+                "/*.svg"
+            ).permitAll()
 
-        return httpSecurity.build();
-    }
+            // Allow all frontend routes (so Angular handles them)
+            .requestMatchers("/**").permitAll()
+
+            // Secure everything else
+            .anyRequest().authenticated()
+        )
+        .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+      httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
+     return httpSecurity.build();
+}
+
 
     // PasswordEncoder bean
     @Bean
